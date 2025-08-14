@@ -10,10 +10,9 @@ export async function handleRequest(request) {
   if (pathname === '/' || pathname === '/index.html') {
     return new Response('Proxy is Running!  More Details: https://github.com/ywj790866977/gemini-balance-lite', {
       status: 200,
-      headers: { 'Content-Type': 'text/htm
+      headers: { 'Content-Type': 'text/html' }
     });
   }
-
   if (pathname === '/verify' && request.method === 'POST') {
     return handleVerification(request);
   }
