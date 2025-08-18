@@ -1,80 +1,40 @@
-import { handleVerification } from './verify_keys.js';
-import openai from './openai.mjs';
+// src/handle_request.js
 
-export async function handleRequest(request) {
+import openrouter from './providers/openrouter.mjs';
+import modelscope from './providers/modelscope.mjs';
+import gemini from './providers/gemini.mjs'; // <-- 导入新的 provider
 
-  const url = new URL(request.url);
-  const pathname = url.pathname;
-  const search = url.search;
-
-  if (pathname === '/' || pathname === '/index.html') {
-    return new Response('Proxy is Running!  More Details: https://github.com/ywj790866977/gemini-balance-lite', {
-      status: 200,
-      headers: { 'Content-Type': 'text/html' }
-    });
-  }
-  if (pathname === '/verify' && request.method === 'POST') {
-    return handleVerification(request);
-  }
-
-  // 处理OpenAI格式请求
-  if (url.pathname.endsWith("/chat/completions") || url.pathname.endsWith("/completions") || url.pathname.endsWith("/embeddings") || url.pathname.endsWith("/models")) {
-    return openai.fetch(request);
-  }
-
-  const targetUrl = `https://generativelanguage.googleapis.com${pathname}${search}`;
-
-  try {
-    const headers = new Headers();
-    for (const [key, value] of request.headers.entries()) {
-      if (key.trim().toLowerCase() === 'x-goog-api-key') {
-        const apiKeys = value.split(',').map(k => k.trim()).filter(k => k);
-        if (apiKeys.length > 0) {
-          const selectedKey = apiKeys[Math.floor(Math.random() * apiKeys.length)];
-          console.log(`Gemini Selected API Key: ${selectedKey}`);
-          headers.set('x-goog-api-key', selectedKey);
-        }
-      } else {
-        if (key.trim().toLowerCase()==='content-type')
-        {
-           headers.set(key, value);
-        }
-      }
-    }
-
-    console.log('Request Sending to Gemini')
-    console.log('targetUrl:'+targetUrl)
-    console.log(headers)
-
-    const response = await fetch(targetUrl, {
-      method: request.method,
-      headers: headers,
-      body: request.body
-    });
-
-    console.log("Call Gemini Success")
-
-    const responseHeaders = new Headers(response.headers);
-
-    console.log('Header from Gemini:')
-    console.log(responseHeaders)
-
-    responseHeaders.delete('transfer-encoding');
-    responseHeaders.delete('connection');
-    responseHeaders.delete('keep-alive');
-    responseHeaders.delete('content-encoding');
-    responseHeaders.set('Referrer-Policy', 'no-referrer');
-
-    return new Response(response.body, {
-      status: response.status,
-      headers: responseHeaders
-    });
-
-  } catch (error) {
-   console.error('Failed to fetch:', error);
-   return new Response('Internal Server Error\n' + error?.stack, {
-    status: 500,
-    headers: { 'Content-Type': 'text/plain' }
-   });
-}
+// 定义路由规则
+const routes = {
+  '/openrouter': openrouter,
+  '/modelscope': modelscope,
+  '/gemini': gemini, // <-- 添加 gemini 路由
 };
+
+async function handleRequest(request, env) {
+  const {pathname} = new URL(request.url);
+
+  // 添加接收请求的日志
+  console.log('[handleRequest] Received request:', {
+    url: request.url,
+    method: request.method,
+    pathname: pathname,
+    headers: Object.fromEntries(request.headers.entries()),
+  });
+
+  // 根据路径前缀查找对应的 provider
+  for (const prefix in routes) {
+    if (pathname.startsWith(prefix)) {
+      const provider = routes[prefix];
+      return await provider.handle(request, env);
+    }
+  }
+
+  // 如果没有匹配的路由，返回 404
+  return new Response(JSON.stringify({error: 'Route not found'}), {
+    status: 404,
+    headers: {'Content-Type': 'application/json'},
+  });
+}
+
+export {handleRequest};

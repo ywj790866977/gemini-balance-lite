@@ -130,12 +130,54 @@ curl -X POST --location 'https://<YOUR_DEPLOYED_DOMAIN>/v1beta/models/gemini-2.5
             }
          ]
       }
-    ]
+  ]
 }'
+
+### OpenRouter 格式
+
+本项目支持 OpenRouter 的 API 格式，你可以通过 `/openrouter/chat/completions` 端点来发送请求。
+
+**Curl 示例:**
+```bash
+curl -X POST --location 'https://<YOUR_DEPLOYED_DOMAIN>/openrouter/chat/completions' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer <YOUR_OPENROUTER_API_KEY>' \
+--data '{
+  "model": "openrouter/auto",
+  "messages": [
+      {
+          "role": "user",
+          "content": "你好"
+      }
+  ]
+}'
+```
+> 注意: 请将 `<YOUR_DEPLOYED_DOMAIN>` 替换为你的部署域名，并将 `<YOUR_OPENROUTER_API_KEY>` 替换为你的 OpenRouter API Key。
+
+### 魔塔社区 格式
+
+本项目支持魔塔社区的 API 格式，你可以通过 `/modelscope/chat/completions` 端点来发送请求。
+
+**Curl 示例:**
+```bash
+curl -X POST --location 'https://<YOUR_DEPLOYED_DOMAIN>/modelscope/chat/completions' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer <YOUR_MODELSCOPE_API_KEY>' \
+--data '{
+  "model": "Qwen/Qwen2-7B-Instruct",
+  "messages": [
+      {
+          "role": "user",
+          "content": "你好"
+      }
+  ]
+}'
+```
+> 注意: 请将 `<YOUR_DEPLOYED_DOMAIN>` 替换为你的部署域名，并将 `<YOUR_MODELSCOPE_API_KEY>` 替换为你的 魔塔社区 API Key。
 ```
 **Curl 示例:（流式）**
 ```bash
-curl -X POST --location 'https://<YOUR_DEPLOYED_DOMAIN>/v1beta/models/gemini-2.5-pro:generateContent?alt=sse' \
+curl -X POST --location 'https://<YOUR_DEPLOYED_DOMAIN>/gemini/v1beta/models/gemini-2.5-pro:generateContent?alt=sse' \
 --header 'Content-Type: application/json' \
 --header 'x-goog-api-key: <YOUR_GEMINI_API_KEY_1>,<YOUR_GEMINI_API_KEY_2>' \
 --data '{
@@ -160,7 +202,7 @@ curl -X POST --location 'https://<YOUR_DEPLOYED_DOMAIN>/v1beta/models/gemini-2.5
 
 **Curl 示例:**
 ```bash
-curl -X POST --location 'https://<YOUR_DEPLOYED_DOMAIN>/verify' \
+curl -X POST --location 'https://<YOUR_DEPLOYED_DOMAIN>/gemini/verify' \
 --header 'x-goog-api-key: <YOUR_GEMINI_API_KEY_1>,<YOUR_GEMINI_API_KEY_2>'
 ```
 
@@ -170,7 +212,7 @@ curl -X POST --location 'https://<YOUR_DEPLOYED_DOMAIN>/verify' \
 
 **Curl 示例:**
 ```bash
-curl -X POST --location 'https://<YOUR_DEPLOYED_DOMAIN>/chat/completions' \
+curl -X POST --location 'https://<YOUR_DEPLOYED_DOMAIN>/gemini/chat/completions' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer <YOUR_GEMINI_API_KEY>' \
 --data '{
