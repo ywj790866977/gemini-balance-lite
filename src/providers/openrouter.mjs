@@ -12,14 +12,10 @@ async function handle(request, env) {
     const apiPath = pathname.replace('/openrouter', '');
     
     // 构建目标 URL，避免路径重复
-    let targetUrl;
-    if (apiPath.startsWith('/api/v1')) {
-      // 如果路径已包含 /api/v1，则直接使用基础 URL 和路径
-      targetUrl = new URL(apiPath + search, OPENROUTER_API_BASE).href;
-    } else {
-      // 否则正常拼接
-      targetUrl = `${OPENROUTER_API_BASE}${apiPath}${search}`;
-    }
+    // 移除 apiPath 开头可能存在的 /api/v1, /api, /v1 前缀
+    const cleanApiPath = apiPath.replace(/^\/(api\/v1|api|v1)/, '');
+    const baseUrl = new URL(OPENROUTER_API_BASE);
+    const targetUrl = new URL(cleanApiPath + search, baseUrl).href;
     // 处理请求头
     const headers = new Headers();
 

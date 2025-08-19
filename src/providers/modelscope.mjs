@@ -1,5 +1,5 @@
 // ModelScope API Provider
-const MODELSCOPE_API_BASE = 'https://api-inference.modelscope.cn/v1';
+const MODELSCOPE_API_BASE = 'https://api-inference.modelscope.cn';
 
 async function handle(request, env) {
 
@@ -7,8 +7,14 @@ async function handle(request, env) {
     // 构建目标 URL
     const url = new URL(request.url);
     const {pathname, search} = url;
-    const targetUrl = `${MODELSCOPE_API_BASE}${pathname.replace('/modelscope', '')}${search}`;
-    // const targetUrl = new URL(MODELSCOPE_API_BASE + url.pathname + url.search);
+    
+    // 智能处理路径：确保转发的路径包含 /v1
+    let apiPath = pathname.replace('/modelscope', '');
+    if (!apiPath.startsWith('/v1')) {
+      apiPath = '/v1' + apiPath;
+    }
+    
+    const targetUrl = `${MODELSCOPE_API_BASE}${apiPath}${search}`;
 
     // 处理请求头
     const headers = new Headers();
