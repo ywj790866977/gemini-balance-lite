@@ -21,6 +21,12 @@ async function handleRequest(request, env) {
     pathname: pathname,
     headers: Object.fromEntries(request.headers.entries()),
   });
+  if (pathname === '/' || pathname === '/index.html') {
+    return new Response('Running!', {
+      status: 200,
+      headers: { 'Content-Type': 'text/html' }
+    });
+  }
 
   // 根据路径前缀查找对应的 provider
   for (const prefix in routes) {
